@@ -1,4 +1,4 @@
-package com.mvpclean.scb.domain.usecase.getmobiles
+package com.mvpclean.scb.domain.usecase.mobiles
 
 import com.mvpclean.scb.domain.executor.PostExecutionThread
 import com.mvpclean.scb.domain.executor.ThreadExecutor
