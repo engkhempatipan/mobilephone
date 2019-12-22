@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorWhite"
+        android:orientation="vertical">
+
+        <RadioGroup
+            android:id="@+id/radio_group"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="16dp">
+
+            <RadioButton
+                android:id="@+id/radio_button_sort_by_price_low_to_high"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Price low to high" />
+
+            <RadioButton
+                android:id="@+id/radio_button_sort_by_price_high_to_low"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Price high to low" />
+
+            <RadioButton
+                android:id="@+id/radio_button_sort_by_rating"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Rating 5 - 1" />
+
+        </RadioGroup>
+
+    </LinearLayout>
+
+</RelativeLayout>

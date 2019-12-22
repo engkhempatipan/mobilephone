@@ -1,0 +1,3 @@
+include ':app'
+include ':cache', ':remote', ':data', ':domain'
+rootProject.name='Scb'
