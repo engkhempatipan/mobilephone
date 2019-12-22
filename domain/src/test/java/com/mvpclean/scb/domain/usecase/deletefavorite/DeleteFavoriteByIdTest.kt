@@ -37,6 +37,7 @@ class DeleteFavoriteByIdTest {
     @Test
     fun buildUseCaseObservableCallsRepository() {
         val id = randomUuid()
+        stubRepositoryDeleteMobile(id, Completable.complete())
         // WHEN
         useCase.buildUseCaseObservable(id)
         // THEN

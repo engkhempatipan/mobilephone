@@ -1,6 +1,5 @@
 package com.mvpclean.scb.ui.favoritelist.presenter
 
-import com.mvpclean.scb.domain.interactor.CompletableUseCase
 import com.mvpclean.scb.domain.interactor.SingleUseCase
 import com.mvpclean.scb.domain.model.Mobile
 import com.mvpclean.scb.util.sortBy
@@ -10,7 +9,7 @@ import javax.inject.Inject
 class FavoritePresenter @Inject constructor(
     private val view: FavoriteContract.View,
     private val getCachedFavoriteListUseCase: SingleUseCase<List<Mobile>, Void?>,
-    private val deleteCachedFavoriteByIdUseCase: CompletableUseCase<String>,
+    private val deleteCachedFavoriteByIdUseCase: SingleUseCase<Boolean, String>,
     private val getCachedSortByUseCase: SingleUseCase<String, Void?>
 ) : FavoriteContract.Presenter {
 
@@ -38,7 +37,7 @@ class FavoritePresenter @Inject constructor(
 
     override fun stop() {
         getCachedFavoriteListUseCase.dispose()
-        deleteCachedFavoriteByIdUseCase.unsubscribe()
+        deleteCachedFavoriteByIdUseCase.dispose()
         getCachedSortByUseCase.dispose()
     }
 
@@ -69,9 +68,15 @@ class FavoritePresenter @Inject constructor(
     }
 
     override fun deleteFavorite(id: String) {
-        deleteCachedFavoriteByIdUseCase.execute(id).doOnComplete {
-            getFavorite()
-        }.subscribe()
+        deleteCachedFavoriteByIdUseCase.execute(object : DisposableSingleObserver<Boolean>() {
+            override fun onSuccess(t: Boolean) {
+                getFavorite()
+            }
+
+            override fun onError(e: Throwable) {
+                e.printStackTrace()
+            }
+        }, id)
     }
 
 }

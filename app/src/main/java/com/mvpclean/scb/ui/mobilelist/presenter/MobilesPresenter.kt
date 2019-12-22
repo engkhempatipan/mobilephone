@@ -1,6 +1,5 @@
 package com.mvpclean.scb.ui.mobilelist.presenter
 
-import com.mvpclean.scb.domain.interactor.CompletableUseCase
 import com.mvpclean.scb.domain.interactor.SingleUseCase
 import com.mvpclean.scb.domain.model.Mobile
 import com.mvpclean.scb.util.sortBy
@@ -10,9 +9,9 @@ import javax.inject.Inject
 class MobilesPresenter @Inject constructor(
     private val view: MobilesContract.View,
     private val getMobilesUseCase: SingleUseCase<List<Mobile>, Void?>,
-    private val saveCachedFavoriteUseCase: CompletableUseCase<Mobile>,
+    private val saveCachedFavoriteUseCase: SingleUseCase<Boolean, Mobile>,
     private val getCachedFavoriteListUseCase: SingleUseCase<List<Mobile>, Void?>,
-    private val deleteCachedFavoriteByIdUseCase: CompletableUseCase<String>,
+    private val deleteCachedFavoriteByIdUseCase: SingleUseCase<Boolean, String>,
     private val getCachedSortByUseCase: SingleUseCase<String, Void?>
 ) : MobilesContract.Presenter {
 
@@ -42,9 +41,8 @@ class MobilesPresenter @Inject constructor(
 
     override fun stop() {
         getMobilesUseCase.dispose()
-        saveCachedFavoriteUseCase.unsubscribe()
         getCachedFavoriteListUseCase.dispose()
-        deleteCachedFavoriteByIdUseCase.unsubscribe()
+        deleteCachedFavoriteByIdUseCase.dispose()
         getCachedSortByUseCase.dispose()
     }
 
@@ -75,15 +73,27 @@ class MobilesPresenter @Inject constructor(
     }
 
     override fun onFavoriteClick(mobile: Mobile) {
-        saveCachedFavoriteUseCase.execute(mobile).doOnComplete {
-            getFavoriteList()
-        }.subscribe()
+        saveCachedFavoriteUseCase.execute(object : DisposableSingleObserver<Boolean>() {
+            override fun onSuccess(t: Boolean) {
+                getFavoriteList()
+            }
+
+            override fun onError(e: Throwable) {
+                e.printStackTrace()
+            }
+        }, mobile)
     }
 
     override fun onUnFavoriteClick(id: String) {
-        deleteCachedFavoriteByIdUseCase.execute(id).doOnComplete {
-            getFavoriteList()
-        }.subscribe()
+        deleteCachedFavoriteByIdUseCase.execute(object : DisposableSingleObserver<Boolean>() {
+            override fun onSuccess(t: Boolean) {
+                getFavoriteList()
+            }
+
+            override fun onError(e: Throwable) {
+                e.printStackTrace()
+            }
+        }, id)
     }
 
     private fun getFavoriteList() {
@@ -114,7 +124,6 @@ class MobilesPresenter @Inject constructor(
             e.printStackTrace()
             view.hideLoadingDialog()
         }
-
     }
 
 }

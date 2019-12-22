@@ -9,10 +9,10 @@ import com.mvpclean.scb.domain.model.Mobile
 import com.mvpclean.scb.ui.mobilelist.presenter.MobilesContract
 import com.mvpclean.scb.ui.mobilelist.presenter.MobilesPresenter
 import com.mvpclean.scb.ui.mobiles.MobilesFactory.Factory.makeListMobile
+import com.mvpclean.scb.ui.mobiles.MobilesFactory.Factory.makeMobile
 import com.mvpclean.scb.ui.test.DataFactory.Factory.randomUuid
 import com.mvpclean.scb.util.sortBy
 import com.nhaarman.mockito_kotlin.*
-import io.reactivex.Completable
 import io.reactivex.observers.DisposableSingleObserver
 import org.junit.Before
 import org.junit.Test
@@ -23,37 +23,31 @@ class MobilesPresenterTest {
 
     lateinit var presenter: MobilesPresenter
     lateinit var view: MobilesContract.View
-
     lateinit var getMobilesUseCase: GetMobiles
-    lateinit var saveCachedFavoriteUseCase: Favorite
+    lateinit var saveCachedFavoriteSigleUseCase: Favorite
     lateinit var getCachedFavoriteListUseCase: GetFavoriteList
-    lateinit var deleteCachedFavoriteByIdUseCase: DeleteFavoriteById
     lateinit var getCachedSortByUseCase: GetSortBy
-
-    lateinit var captorSetCachedSortByUseCase: KArgumentCaptor<Completable>
-    lateinit var captorGetCachedSortByUseCase: KArgumentCaptor<DisposableSingleObserver<String>>
-    lateinit var captorGetCachedFavoriteListUseCase: KArgumentCaptor<Completable>
+    lateinit var deleteCachedFavoriteByIdUseCase: DeleteFavoriteById
 
     lateinit var captorGetMobilesUseCase: KArgumentCaptor<DisposableSingleObserver<List<Mobile>>>
+    lateinit var captorSaveCachedFavorite: KArgumentCaptor<DisposableSingleObserver<Boolean>>
 
     @Before
     fun setUp() {
         view = mock()
         getMobilesUseCase = mock()
-        saveCachedFavoriteUseCase = mock()
+        saveCachedFavoriteSigleUseCase = mock()
         getCachedFavoriteListUseCase = mock()
-        deleteCachedFavoriteByIdUseCase = mock()
         getCachedSortByUseCase = mock()
+        deleteCachedFavoriteByIdUseCase = mock()
 
-        captorGetCachedFavoriteListUseCase = argumentCaptor()
-        captorSetCachedSortByUseCase = argumentCaptor()
-        captorGetCachedSortByUseCase = argumentCaptor()
         captorGetMobilesUseCase = argumentCaptor()
+        captorSaveCachedFavorite = argumentCaptor()
 
         presenter = MobilesPresenter(
             view,
             getMobilesUseCase,
-            saveCachedFavoriteUseCase,
+            saveCachedFavoriteSigleUseCase,
             getCachedFavoriteListUseCase,
             deleteCachedFavoriteByIdUseCase,
             getCachedSortByUseCase
@@ -86,10 +80,10 @@ class MobilesPresenterTest {
     }
 
     @Test
-    fun sortData(){
+    fun sortData() {
         // GIVEN
         val listMobile = makeListMobile(10)
-        val key  = randomUuid()
+        val key = randomUuid()
         presenter.mobiles = listMobile
         val sortList = listMobile.sortBy(key)
 
@@ -97,12 +91,12 @@ class MobilesPresenterTest {
         presenter.sortData(key)
 
         // THEN
-        assertEquals(presenter.sortByKey,key)
+        assertEquals(presenter.sortByKey, key)
         verify(view).updateList(sortList!!)
     }
 
     @Test
-    fun onStart(){
+    fun onStart() {
         // WHEN
         presenter.start()
 
@@ -110,4 +104,20 @@ class MobilesPresenterTest {
         verify(view).showLoadingDialog()
     }
 
+    @Test
+    fun onFavoriteClick() {
+        // GIVEN
+        val mobile = makeMobile()
+        val mobiles = makeListMobile(10)
+
+        // WHEN
+        presenter.onFavoriteClick(mobile)
+
+        // THEN
+        verify(saveCachedFavoriteSigleUseCase).execute(captorSaveCachedFavorite.capture(), eq(mobile))
+        captorSaveCachedFavorite.firstValue.onSuccess(true)
+        verify(getCachedFavoriteListUseCase).execute(captorGetMobilesUseCase.capture(), eq(null))
+        captorGetMobilesUseCase.firstValue.onSuccess(mobiles)
+        verify(view).updateFavoriteList(any())
+    }
 }
