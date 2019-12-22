@@ -52,19 +52,6 @@ class MobilesPresenter @Inject constructor(
         getMobilesUseCase.execute(GetMobilesSubscriber())
     }
 
-    inner class GetMobilesSubscriber : DisposableSingleObserver<List<Mobile>>() {
-        override fun onSuccess(mobiles: List<Mobile>) {
-            updateMobileList(mobiles)
-            getFavoriteList()
-        }
-
-        override fun onError(e: Throwable) {
-            e.printStackTrace()
-            view.hideLoadingDialog()
-        }
-
-    }
-
     private fun updateMobileList(mobileList: List<Mobile>) {
         view.hideLoadingDialog()
         this.mobiles = mobileList
@@ -115,6 +102,19 @@ class MobilesPresenter @Inject constructor(
                 e.printStackTrace()
             }
         })
+    }
+
+    inner class GetMobilesSubscriber : DisposableSingleObserver<List<Mobile>>() {
+        override fun onSuccess(mobiles: List<Mobile>) {
+            updateMobileList(mobiles)
+            getFavoriteList()
+        }
+
+        override fun onError(e: Throwable) {
+            e.printStackTrace()
+            view.hideLoadingDialog()
+        }
+
     }
 
 }
