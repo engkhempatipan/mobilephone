@@ -12,7 +12,7 @@ open class SetSortBy @Inject constructor(
     threadExecutor: ThreadExecutor,
     postExecutionThread: PostExecutionThread
 ) : CompletableUseCase<String>(threadExecutor, postExecutionThread) {
-    override fun buildUseCaseObservable(params: String): Completable {
+    public override fun buildUseCaseObservable(params: String): Completable {
         return repository.setSortBy(params)
     }
 

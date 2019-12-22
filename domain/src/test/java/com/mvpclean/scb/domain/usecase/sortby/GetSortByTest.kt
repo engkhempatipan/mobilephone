@@ -1,11 +1,10 @@
-package com.mvpclean.scb.domain.usecase.getFavoritelist
+package com.mvpclean.scb.domain.usecase.sortby
 
 import com.mvpclean.scb.domain.executor.PostExecutionThread
 import com.mvpclean.scb.domain.executor.ThreadExecutor
-import com.mvpclean.scb.domain.interactor.getFavoritelist.GetFavoriteList
-import com.mvpclean.scb.domain.model.Mobile
+import com.mvpclean.scb.domain.interactor.sortby.GetSortBy
 import com.mvpclean.scb.domain.repository.Repository
-import com.mvpclean.scb.domain.test.factory.Factory.Factory.makeListMobile
+import com.mvpclean.scb.domain.test.factory.DataFactory.Factory.randomUuid
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
 import io.reactivex.Single
@@ -16,9 +15,9 @@ import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
-class GetFavoriteListTest {
+class GetSortByTest {
 
-    private lateinit var useCase: GetFavoriteList
+    private lateinit var useCase: GetSortBy
     @Mock
     private lateinit var mockThreadExecutor: ThreadExecutor
     @Mock
@@ -28,7 +27,7 @@ class GetFavoriteListTest {
 
     @Before
     fun setUp() {
-        useCase = GetFavoriteList(
+        useCase = GetSortBy(
             mockRepository,
             mockThreadExecutor,
             mockPostExecutionThread
@@ -37,17 +36,20 @@ class GetFavoriteListTest {
 
     @Test
     fun buildUseCaseObservableCallsRepository() {
+        // GIVEN
+        val key = randomUuid()
         // WHEN
         useCase.buildUseCaseObservable()
+
         // THEN
-        verify(mockRepository).getFavoriteList()
+        verify(mockRepository).getSortBy()
     }
 
     @Test
     fun buildUseCaseObservableCompletes() {
         // GIVEN
-        val mobiles = makeListMobile(10)
-        stubRepositoryGetFavoriteList(Single.just(mobiles))
+        val key = randomUuid()
+        stubRepositoryGetSortBy(key, Single.just(key))
         // WHEN
         val testObserver = useCase.buildUseCaseObservable().test()
         // THEN
@@ -57,16 +59,16 @@ class GetFavoriteListTest {
     @Test
     fun buildUseCaseObservableReturnsData() {
         // GIVEN
-        val mobiles = makeListMobile(10)
-        stubRepositoryGetFavoriteList(Single.just(mobiles))
+        val key = randomUuid()
+        stubRepositoryGetSortBy(key, Single.just(key))
         // WHEN
         val testObserver = useCase.buildUseCaseObservable().test()
         // THEN
-        testObserver.assertValue(mobiles)
+        testObserver.assertValue(key)
     }
 
-    private fun stubRepositoryGetFavoriteList(single: Single<List<Mobile>>) {
-        whenever(mockRepository.getFavoriteList()).thenReturn(single)
+    private fun stubRepositoryGetSortBy(key: String, single: Single<String>) {
+        whenever(mockRepository.getSortBy()).thenReturn(single)
     }
 
 }

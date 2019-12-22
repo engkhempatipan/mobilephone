@@ -1,8 +1,8 @@
-package com.mvpclean.scb.domain.usecase.deletefavorite
+package com.mvpclean.scb.domain.usecase.sortby
 
 import com.mvpclean.scb.domain.executor.PostExecutionThread
 import com.mvpclean.scb.domain.executor.ThreadExecutor
-import com.mvpclean.scb.domain.interactor.deletefavorite.DeleteFavoriteById
+import com.mvpclean.scb.domain.interactor.sortby.SetSortBy
 import com.mvpclean.scb.domain.repository.Repository
 import com.mvpclean.scb.domain.test.factory.DataFactory.Factory.randomUuid
 import com.nhaarman.mockito_kotlin.verify
@@ -15,9 +15,9 @@ import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
-class DeleteFavoriteByIdTest {
+class SetSortByTest {
 
-    private lateinit var useCase: DeleteFavoriteById
+    private lateinit var useCase: SetSortBy
     @Mock
     private lateinit var mockThreadExecutor: ThreadExecutor
     @Mock
@@ -27,7 +27,7 @@ class DeleteFavoriteByIdTest {
 
     @Before
     fun setUp() {
-        useCase = DeleteFavoriteById(
+        useCase = SetSortBy(
             mockRepository,
             mockThreadExecutor,
             mockPostExecutionThread
@@ -36,26 +36,28 @@ class DeleteFavoriteByIdTest {
 
     @Test
     fun buildUseCaseObservableCallsRepository() {
-        val id = randomUuid()
+        // GIVEN
+        val key = randomUuid()
         // WHEN
-        useCase.buildUseCaseObservable(id)
+        useCase.buildUseCaseObservable(key)
+
         // THEN
-        verify(mockRepository).deleteMobile(id)
+        verify(mockRepository).setSortBy(key)
     }
 
     @Test
     fun buildUseCaseObservableCompletes() {
         // GIVEN
-        val id = randomUuid()
-        stubRepositoryDeleteMobile(id, Completable.complete())
+        val key = randomUuid()
+        stubRepositorySetSortBy(key, Completable.complete())
         // WHEN
-        val testObserver = useCase.buildUseCaseObservable(id).test()
+        val testObserver = useCase.buildUseCaseObservable(key).test()
         // THEN
         testObserver.assertComplete()
     }
 
-    private fun stubRepositoryDeleteMobile(id: String, completable: Completable) {
-        whenever(mockRepository.deleteMobile(id)).thenReturn(completable)
+    private fun stubRepositorySetSortBy(key: String, completable: Completable) {
+        whenever(mockRepository.setSortBy(key)).thenReturn(completable)
     }
 
 }
