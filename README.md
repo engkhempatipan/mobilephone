@@ -1,4 +1,4 @@
-# scbtest application Demo by Patiphan Panyaphuntrakul (Android Developer)
+# scbtest application Demo by Patiphan Panyaphuntrakun (Android Developer)
 
 Kolin MVP+Clean architechture
 
